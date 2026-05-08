@@ -52,7 +52,7 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:border-navy transition-colors"
-                placeholder="admin@caitiem.com"
+                placeholder="Nhập email quản trị"
                 required
               />
             </div>

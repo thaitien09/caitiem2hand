@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-6 text-white/50">Liên hệ</h3>
             <ul className="space-y-4 text-[10px] tracking-widest uppercase text-stone-400">
               <li>
-                <a href="https://m.me/Caitiem2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                <a href="https://www.facebook.com/Caitiem2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   Facebook: Cái Tiệm Secondhand
                 </a>
               </li>

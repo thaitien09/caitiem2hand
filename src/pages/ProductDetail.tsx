@@ -267,7 +267,7 @@ const ProductDetail: React.FC = () => {
                 </button>
               ) : (
                 <a
-                  href="https://www.instagram.com/caitiem.2hand?igsh=ZnJ0bXRhc3lla3ph"
+                  href="https://m.me/Caitiem2hand"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-navy text-white py-4 px-6 text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-stone-900 transition-all duration-500 flex items-center justify-center gap-3 shadow-2xl shadow-navy/20 active:scale-[0.98]"

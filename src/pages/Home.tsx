@@ -72,8 +72,10 @@ const Home: React.FC = () => {
                 <video
                   id="lookbook-video"
                   loop
+                  muted
+                  autoPlay
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   className="w-full h-full object-cover"
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
@@ -139,13 +141,13 @@ const Home: React.FC = () => {
 
       {/* Category Filter Bar */}
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-center overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <div className="flex gap-8 md:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center md:justify-center overflow-x-auto whitespace-nowrap scrollbar-hide">
+          <div className="flex gap-6 md:gap-12 items-center">
             {brands.map((brand) => (
               <button
                 key={brand}
                 onClick={() => setActiveBrand(brand)}
-                className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 py-2 border-b-2 cursor-pointer ${activeBrand === brand ? 'border-navy text-navy' : 'border-transparent text-stone-300 hover:text-stone-500'
+                className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 py-2 border-b-2 cursor-pointer ${activeBrand === brand ? 'border-navy text-navy' : 'border-transparent text-stone-300 hover:text-stone-500'
                   }`}
               >
                 {brand}
@@ -159,7 +161,7 @@ const Home: React.FC = () => {
       <section id="san-pham" className="max-w-7xl mx-auto px-6 py-20 md:py-32 min-h-[400px]">
         {loading ? (
           /* Skeleton Loading — perceived performance tốt hơn spinner */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-20 gap-x-10">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20 gap-x-4 md:gap-x-10">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-[3/4] bg-stone-100 mb-5 rounded" />
@@ -172,7 +174,7 @@ const Home: React.FC = () => {
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-20 gap-x-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20 gap-x-4 md:gap-x-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

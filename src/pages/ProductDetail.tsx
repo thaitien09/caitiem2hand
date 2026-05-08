@@ -286,7 +286,7 @@ const ProductDetail: React.FC = () => {
               </div>
             )}
 
-            {/* Final CTA */}
+            {/* Final CTA - Desktop and Mobile inside flow */}
             <div className="mt-4 mb-8">
               {product.status === 'Đã bán' ? (
                 <div className="space-y-4">
@@ -306,6 +306,21 @@ const ProductDetail: React.FC = () => {
                 </a>
               )}
             </div>
+
+            {/* Mobile Sticky CTA - Fixed at bottom */}
+            {product.status !== 'Đã bán' && (
+              <div className="md:hidden fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-lg border-t border-stone-100 z-50 animate-in slide-in-from-bottom duration-500">
+                <a
+                  href="https://www.instagram.com/caitiem.2hand?igsh=ZnJ0bXRhc3lla3ph"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-navy text-white py-4 px-6 text-[11px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-xl"
+                >
+                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                  MUA NGAY QUA INSTAGRAM
+                </a>
+              </div>
+            )}
 
             {/* Commitments */}
             <div className="space-y-4 border-t border-stone-100 pt-6">

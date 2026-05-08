@@ -386,7 +386,7 @@ const AdminProducts: React.FC = () => {
                 {/* Left: Images */}
                 <div className="lg:col-span-5 space-y-6">
                   <div>
-                    <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-4">Hình ảnh (Tối đa 10 ảnh)</label>
+                    <label className="block text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-4">Hình ảnh (Tối đa 15 ảnh)</label>
                     
                     <div className="grid grid-cols-3 gap-4 mb-6">
                       {formData.images?.map((url, index) => (
@@ -414,7 +414,7 @@ const AdminProducts: React.FC = () => {
                         </div>
                       ))}
                       
-                      {(formData.images?.length || 0) < 10 && (
+                      {(formData.images?.length || 0) < 15 && (
                         <label className="aspect-[3/4] border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-stone-50 transition-colors">
                           <PhotoIcon className="w-8 h-8 text-stone-300" />
                           <span className="text-[9px] uppercase tracking-widest font-bold text-stone-400">Thêm ảnh</span>

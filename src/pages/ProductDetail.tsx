@@ -7,10 +7,8 @@ import {
   ChevronRightIcon,
   ChatBubbleLeftRightIcon,
   CheckBadgeIcon,
-  TruckIcon,
   ScissorsIcon,
   XMarkIcon,
-  NoSymbolIcon
 } from '@heroicons/react/24/outline';
 import { MOCK_PRODUCTS } from '@/pages/Home';
 import { db, isFirebaseConfigured } from '@/lib/firebase';
@@ -23,7 +21,6 @@ const ProductDetail: React.FC = () => {
   const location = useLocation();
   const { getProductById } = useProducts();
   
-  // 3-tier loading: router state → Context cache → Firestore fetch
   const cachedProduct = (location.state as any)?.product || (id ? getProductById(id) : null);
   const [product, setProduct] = useState<Product | null>(cachedProduct || null);
   const [loading, setLoading] = useState(!cachedProduct);
@@ -33,7 +30,6 @@ const ProductDetail: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    // If product already available from state or context, skip fetching
     if (cachedProduct) return;
 
     const fetchProduct = async () => {
@@ -102,30 +98,7 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     if (product) {
-      // 1. Cập nhật thẻ Title trên trình duyệt
       document.title = `${product.title} | Cái Tiệm 2HAND`;
-      
-      // Hàm hỗ trợ tự động tìm và cập nhật thẻ Meta
-      const updateMetaTag = (property: string, content: string) => {
-        let meta = document.querySelector(`meta[property="${property}"]`);
-        if (!meta) {
-          meta = document.createElement('meta');
-          meta.setAttribute('property', property);
-          document.head.appendChild(meta);
-        }
-        meta.setAttribute('content', content);
-      };
-
-      // 2. Cập nhật các thẻ chia sẻ mạng xã hội (Open Graph)
-      updateMetaTag('og:title', `${product.title} | Cái Tiệm 2HAND`);
-      updateMetaTag('og:description', `Sản phẩm độc bản tại Cái Tiệm 2HAND. Tình trạng: ${product.condition}. Mua ngay!`);
-      updateMetaTag('og:image', product.image); // Lấy hình ảnh thực tế của sản phẩm
-      updateMetaTag('og:url', window.location.href);
-      
-      // Twitter Card
-      updateMetaTag('twitter:title', `${product.title} | Cái Tiệm 2HAND`);
-      updateMetaTag('twitter:description', `Sản phẩm độc bản tại Cái Tiệm 2HAND. Tình trạng: ${product.condition}. Mua ngay!`);
-      updateMetaTag('twitter:image', product.image);
     }
   }, [product]);
 
@@ -156,31 +129,30 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  // Parse sizes (e.g. "M-L" -> ["M", "L"])
   const sizes = product.sizeRange ? product.sizeRange.split(/[-/]/) : [];
+  const isSold = product.status === 'Đã bán';
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="max-w-5xl mx-auto px-6 py-6 md:py-8">
-        <Link to="/" className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-navy/80 hover:text-navy transition-colors mb-4 group w-fit">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-12 md:py-8">
+        <Link to="/" className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-navy/80 hover:text-navy transition-colors mb-3 md:mb-4 group w-fit">
           <ChevronLeftIcon className="w-3 h-3 transition-transform group-hover:-translate-x-1" />
           QUAY LẠI
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-start">
           {/* Left Side: Image Gallery */}
-          <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-6">
-            {/* Thumbnails */}
+          <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-3 md:gap-6">
+            {/* Thumbnails — Grid wrap on mobile */}
             {images.length > 1 && (
-              <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-[400px] scrollbar-hide md:w-16 lg:w-20 shrink-0">
+              <div className="flex flex-wrap md:flex-col gap-2 md:gap-3 md:max-h-[500px] md:overflow-y-auto scrollbar-hide md:w-16 lg:w-20 shrink-0">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleImageChange(idx)}
-                    className={`aspect-[3/4] md:w-full overflow-hidden transition-all duration-500 shrink-0 ${currentIndex === idx ? 'opacity-100 ring-2 ring-navy ring-offset-2' : 'opacity-40 hover:opacity-100'
-                      }`}
+                    className={`w-[calc(20%-8px)] sm:w-[calc(16.66%-8px)] md:w-full aspect-[3/4] overflow-hidden transition-all duration-500 shrink-0 border-2 ${currentIndex === idx ? 'border-navy shadow-md scale-105' : 'border-stone-100 opacity-60 hover:opacity-100'}`}
                   >
                     <img src={img} alt="Thumb" className="w-full h-full object-cover" />
                   </button>
@@ -189,27 +161,33 @@ const ProductDetail: React.FC = () => {
             )}
 
             {/* Main Image View */}
-            <div className="flex-1 relative group overflow-hidden">
+            <div className="flex-1 relative group overflow-hidden rounded-lg md:rounded-none">
               <div
-                className="aspect-[3/4] w-full max-h-[450px] md:max-h-[500px] overflow-hidden relative bg-stone-50 cursor-zoom-in border border-stone-100"
+                className="aspect-[3/4] w-full max-h-[70vh] md:max-h-[550px] overflow-hidden relative bg-stone-50 cursor-zoom-in border border-stone-100"
                 onClick={() => setIsZoomed(true)}
               >
-                <img src={images[prevIndex]} alt="Prev" className={`absolute inset-0 w-full h-full object-cover z-0 ${product.isSoldOut ? 'grayscale opacity-50' : ''}`} />
+                <img src={images[prevIndex]} alt="Prev" className={`absolute inset-0 w-full h-full object-cover z-0 ${isSold ? 'grayscale opacity-50' : ''}`} />
                 <img
                   key={currentIndex}
                   src={images[currentIndex]}
                   alt={product.title}
                   className={`absolute inset-0 w-full h-full object-cover z-10 transition-all duration-1000 ease-out ${isAnimating ? 'opacity-0 blur-lg scale-105' : 'opacity-100 blur-0 scale-100'
-                    } ${product.status === 'Đã bán' ? 'grayscale opacity-50' : 'hover:scale-105 transition-transform duration-700'}`}
+                    } ${isSold ? 'grayscale opacity-50' : 'hover:scale-105 transition-transform duration-700'}`}
                 />
 
-                {product.status !== 'Đã bán' && images.length > 1 && (
-                  <div className="absolute inset-0 z-20 flex justify-between items-center px-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="p-2 text-navy/60 hover:text-navy transition-colors">
-                      <ChevronLeftIcon className="w-8 h-8" />
+                {images.length > 1 && (
+                  <div className="absolute bottom-4 right-4 z-20 bg-navy/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-widest shadow-lg md:hidden">
+                    {currentIndex + 1} / {images.length}
+                  </div>
+                )}
+
+                {!isSold && images.length > 1 && (
+                  <div className="absolute inset-0 z-20 flex justify-between items-center px-2 md:px-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-none md:pointer-events-auto">
+                    <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="pointer-events-auto p-2 rounded-full bg-white/80 md:bg-transparent shadow-sm md:shadow-none text-navy/70 hover:text-navy transition-colors">
+                      <ChevronLeftIcon className="w-7 h-7 md:w-9 md:h-9" />
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="p-2 text-navy/60 hover:text-navy transition-colors">
-                      <ChevronRightIcon className="w-8 h-8" />
+                    <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="pointer-events-auto p-2 rounded-full bg-white/80 md:bg-transparent shadow-sm md:shadow-none text-navy/70 hover:text-navy transition-colors">
+                      <ChevronRightIcon className="w-7 h-7 md:w-9 md:h-9" />
                     </button>
                   </div>
                 )}
@@ -218,109 +196,87 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Right Side: Product Info */}
-          <div className="lg:col-span-6 flex flex-col pt-4">
+          <div className="lg:col-span-6 flex flex-col pt-2">
             <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold mb-2 text-stone-500">
               <span className="text-navy">{product?.brand || 'Premium Brand'}</span>
               <span className="w-px h-2 bg-stone-300" />
-              <span className={product?.status === 'Đã bán' ? 'text-red-600 font-bold' : 'text-navy'}>
+              <span className={isSold ? 'text-red-500 font-bold' : 'text-green-600 font-bold'}>
                 {product?.status || 'Còn hàng'}
               </span>
             </div>
 
-            <h1 className={`text-3xl md:text-4xl font-serif mb-4 leading-[1.2] tracking-tight ${product?.status === 'Đã bán' ? 'text-stone-400' : 'text-navy'}`}>
+            <h1 className={`text-2xl md:text-3xl lg:text-4xl font-serif mb-4 leading-[1.2] tracking-tight ${isSold ? 'text-stone-400' : 'text-navy'}`}>
               {product?.title}
             </h1>
 
             {/* Price */}
-            <div className="mb-4">
-              <span className={`text-2xl font-serif tracking-wide ${product?.status === 'Đã bán' ? 'text-stone-300 line-through decoration-2' : 'text-navy'}`}>
+            <div className="mb-6">
+              <span className={`text-xl md:text-2xl font-serif tracking-wide ${isSold ? 'text-stone-300 line-through decoration-2' : 'text-navy'}`}>
                 {product?.price || 'Liên hệ để sở hữu'}
               </span>
             </div>
 
             {/* Premium Detail Cards */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="border-l-2 border-navy/10 pl-6 py-2">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-stone-500 mb-2 font-bold">Chất liệu</p>
-                <p className="text-sm font-bold text-navy uppercase tracking-widest">{product?.material || 'Premium'}</p>
+            <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6">
+              <div className="border-l-2 border-navy/20 pl-4 md:pl-6 py-2 bg-stone-50/50">
+                <p className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-stone-500 mb-1 font-bold">Chất liệu</p>
+                <p className="text-xs md:text-sm font-bold text-navy uppercase tracking-widest">{product?.material || 'Premium'}</p>
               </div>
-              <div className="border-l-2 border-navy/10 pl-6 py-2">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-stone-500 mb-2 font-bold">Tình trạng (Cond)</p>
-                <p className="text-sm font-bold text-navy">{product?.condition || 'Tuyển chọn'}</p>
+              <div className="border-l-2 border-navy/20 pl-4 md:pl-6 py-2 bg-stone-50/50">
+                <p className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-stone-500 mb-1 font-bold">Tình trạng</p>
+                <p className="text-xs md:text-sm font-bold text-navy">{product?.condition || 'Tuyển chọn'}</p>
               </div>
             </div>
 
             {/* Measurements */}
             {product.measurements && (
-              <div className="mb-6 border-t border-stone-200 pt-6">
-                <div className="flex justify-between items-end mb-4">
+              <div className="mb-6 border-t border-stone-100 pt-6">
+                <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
                   <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-navy">Thông số thực tế (cm)</h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">S.i.z.e</span>
-                    <div className="flex gap-2">
-                      {sizes.map((s, idx) => (
-                        <div key={idx} className="w-12 h-12 border border-navy flex items-center justify-center text-sm font-bold text-navy">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Size</span>
+                    <div className="flex gap-1.5">
+                      {(sizes.length > 0 ? sizes : ['-']).map((s, idx) => (
+                        <div key={idx} className="w-10 h-10 md:w-12 md:h-12 border border-navy flex items-center justify-center text-sm font-bold text-navy">
                           {s}
                         </div>
                       ))}
-                      {sizes.length === 0 && (
-                        <div className="w-12 h-12 border border-navy flex items-center justify-center text-sm font-bold text-navy">
-                          -
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between max-w-sm">
+                <div className="flex gap-8 md:gap-12">
                   {[
                     { label: 'Vai', value: product.measurements.shoulder },
                     { label: 'Ngực', value: product.measurements.chest },
                     { label: 'Dài', value: product.measurements.length },
                   ].map((item) => (
                     <div key={item.label} className="text-left">
-                      <p className="text-[9px] text-stone-500 uppercase tracking-widest mb-1.5 font-bold">{item.label}</p>
-                      <p className="text-2xl font-serif text-navy leading-none">{item.value}</p>
+                      <p className="text-[8px] md:text-[9px] text-stone-500 uppercase tracking-widest mb-1.5 font-bold">{item.label}</p>
+                      <p className="text-xl md:text-2xl font-serif text-navy leading-none">{item.value}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Final CTA - Desktop and Mobile inside flow */}
-            <div className="mt-4 mb-8">
-              {product.status === 'Đã bán' ? (
-                <div className="space-y-4">
-                  <button className="w-full bg-stone-100 text-stone-400 py-4 px-6 text-[12px] font-bold uppercase tracking-[0.4em] flex items-center justify-center gap-3 cursor-not-allowed border-2 border-stone-200">
-                    SẢN PHẨM ĐÃ ĐƯỢC CHỐT
-                  </button>
-                </div>
+            {/* Main CTA - Visible on ALL devices, moves with scroll */}
+            <div className="mt-2 mb-8">
+              {isSold ? (
+                <button disabled className="w-full bg-stone-100 text-stone-400 py-4 px-6 text-[11px] font-bold uppercase tracking-[0.4em] flex items-center justify-center gap-3 cursor-not-allowed border-2 border-stone-200">
+                  SẢN PHẨM ĐÃ ĐƯỢC CHỐT
+                </button>
               ) : (
                 <a
                   href="https://www.instagram.com/caitiem.2hand?igsh=ZnJ0bXRhc3lla3ph"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-navy text-white py-4 px-6 text-[12px] font-bold uppercase tracking-[0.4em] hover:bg-stone-900 transition-all duration-500 flex items-center justify-center gap-3 shadow-2xl shadow-navy/20"
+                  className="w-full bg-navy text-white py-4 px-6 text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-stone-900 transition-all duration-500 flex items-center justify-center gap-3 shadow-2xl shadow-navy/20 active:scale-[0.98]"
                 >
                   <ChatBubbleLeftRightIcon className="w-5 h-5" />
                   LIÊN HỆ CÁI TIỆM SECONDHAND
                 </a>
               )}
             </div>
-
-            {/* Mobile Sticky CTA - Fixed at bottom */}
-            {product.status !== 'Đã bán' && (
-              <div className="md:hidden fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-lg border-t border-stone-100 z-50 animate-in slide-in-from-bottom duration-500">
-                <a
-                  href="https://www.instagram.com/caitiem.2hand?igsh=ZnJ0bXRhc3lla3ph"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-navy text-white py-4 px-6 text-[11px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-xl"
-                >
-                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
-                  MUA NGAY QUA INSTAGRAM
-                </a>
-              </div>
-            )}
 
             {/* Commitments */}
             <div className="space-y-4 border-t border-stone-100 pt-6">
@@ -352,25 +308,22 @@ const ProductDetail: React.FC = () => {
       {/* Fullscreen Zoom Overlay */}
       {isZoomed && (
         <div
-          className="fixed inset-0 z-[100] bg-[#f5f5f5] flex items-stretch animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] bg-black flex flex-col items-stretch animate-in fade-in duration-300"
         >
-          {/* Close Button */}
           <button
-            className="absolute top-8 right-8 z-[110] p-3 bg-white rounded-full shadow-lg text-navy hover:rotate-90 transition-transform duration-300"
+            className="absolute top-4 right-4 z-[110] p-3 bg-white/10 rounded-full text-white hover:bg-white/20 transition-colors"
             onClick={() => setIsZoomed(false)}
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
 
-          {/* Thumbnails Sidebar */}
           {images.length > 1 && (
-            <div className="w-24 md:w-32 bg-white/50 backdrop-blur-md border-r border-stone-200 flex flex-col items-center py-10 gap-4 overflow-y-auto scrollbar-hide">
+            <div className="order-2 h-24 w-full bg-white/5 backdrop-blur-md border-t border-white/10 flex flex-row items-center px-4 py-3 gap-3 overflow-x-auto scrollbar-hide shrink-0">
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleImageChange(idx)}
-                  className={`w-16 md:w-20 aspect-[3/4] overflow-hidden transition-all duration-300 shrink-0 border-2 ${currentIndex === idx ? 'border-navy shadow-lg scale-105' : 'border-transparent opacity-60 hover:opacity-100'
-                    }`}
+                  className={`w-14 aspect-[3/4] overflow-hidden transition-all duration-300 shrink-0 border-2 ${currentIndex === idx ? 'border-white scale-105' : 'border-transparent opacity-40 hover:opacity-100'}`}
                 >
                   <img src={img} alt="Thumb" className="w-full h-full object-cover" />
                 </button>
@@ -378,18 +331,20 @@ const ProductDetail: React.FC = () => {
             </div>
           )}
 
-          {/* Main Large Image Container */}
           <div
-            className="flex-1 flex items-center justify-center p-6 md:p-12 overflow-auto"
+            className="order-1 flex-1 flex items-center justify-center p-4 overflow-auto"
             onClick={() => setIsZoomed(false)}
           >
             <div className="relative max-w-full max-h-full">
               <img
                 src={images[currentIndex]}
                 alt={product.title}
-                className="max-w-none w-auto h-auto max-h-[120vh] object-contain shadow-2xl bg-white"
+                className="max-w-full max-h-[75vh] md:max-h-[90vh] object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
+              <div className="absolute -bottom-10 left-0 w-full text-center text-white/60 text-xs font-serif tracking-widest">
+                {currentIndex + 1} / {images.length}
+              </div>
             </div>
           </div>
         </div>

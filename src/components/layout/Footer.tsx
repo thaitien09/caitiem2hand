@@ -22,11 +22,16 @@ const Footer: React.FC = () => {
             <ul className="space-y-4 text-[10px] tracking-widest uppercase text-stone-400">
               <li>
                 <a href="https://www.facebook.com/Caitiem2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                  Facebook: Cái Tiệm Secondhand
+                  Fanpage: Cái Tiệm Secondhand
                 </a>
               </li>
               <li>
-                <a href="https://ig.me/m/caitiem.2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                <a href="fb-messenger://user-thread/Caitiem2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  Chat: Nhắn tin cho Tiệm
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/caitiem.2hand" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   Instagram: caitiem.2hand
                 </a>
               </li>

@@ -11,15 +11,41 @@ const PRODUCTS_PER_PAGE = 12;
 const Home: React.FC = () => {
   const { products, brands, loading } = useProducts();
   const [activeBrand, setActiveBrand] = useState<string>('Tất cả');
+  const [activeStatus, setActiveStatus] = useState<string>('all');
+  const [activePriceRange, setActivePriceRange] = useState<string>('all');
+  const [sortOption, setSortOption] = useState<string>('newest');
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [isVideoMaximized, setIsVideoMaximized] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredProducts = activeBrand === 'Tất cả'
-    ? products
-    : products.filter(p => 
-        (p.brand?.toLowerCase() || '').includes(activeBrand.toLowerCase())
-      );
+  const parsePrice = (priceStr: string | undefined) => {
+    if (!priceStr) return 0;
+    const num = priceStr.replace(/\D/g, '');
+    return parseInt(num, 10) || 0;
+  };
+
+  let filteredProducts = products.filter(p => {
+    const matchBrand = activeBrand === 'Tất cả' || (p.brand?.toLowerCase() || '').includes(activeBrand.toLowerCase());
+    const matchStatus = activeStatus === 'all' || p.status === activeStatus;
+    
+    let matchPrice = true;
+    if (activePriceRange !== 'all') {
+      const price = parsePrice(p.price);
+      if (activePriceRange === 'under500') matchPrice = price < 500000;
+      else if (activePriceRange === '500to1000') matchPrice = price >= 500000 && price <= 1000000;
+      else if (activePriceRange === 'over1000') matchPrice = price > 1000000;
+    }
+
+    return matchBrand && matchStatus && matchPrice;
+  });
+
+  // Apply sorting
+  filteredProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOption === 'price-asc') return parsePrice(a.price) - parsePrice(b.price);
+    if (sortOption === 'price-desc') return parsePrice(b.price) - parsePrice(a.price);
+    return 0; // 'newest' is default (already sorted by descending ID from Firebase)
+  });
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
@@ -31,6 +57,11 @@ const Home: React.FC = () => {
     setActiveBrand(brand);
     setCurrentPage(1);
   };
+
+  // Reset page when other filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeStatus, activePriceRange, sortOption]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -158,7 +189,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Category Filter Bar */}
+      {/* Category Filter Bar (Brands) */}
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center md:justify-center overflow-x-auto whitespace-nowrap scrollbar-hide">
           <div className="flex gap-6 md:gap-12 items-center">
@@ -177,7 +208,47 @@ const Home: React.FC = () => {
       </nav>
 
       {/* Product List */}
-      <section id="san-pham" className="max-w-7xl mx-auto px-6 py-20 md:py-32 min-h-[400px]">
+      <section id="san-pham" className="max-w-7xl mx-auto px-6 py-12 md:py-20 min-h-[400px]">
+        {/* Advanced Filters */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 pb-6 border-b border-stone-100">
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={activeStatus}
+              onChange={(e) => setActiveStatus(e.target.value)}
+              className="px-4 py-2 bg-stone-50 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-navy focus:outline-none focus:border-navy cursor-pointer"
+            >
+              <option value="all">Mọi tình trạng</option>
+              <option value="Hàng mới">Hàng mới</option>
+              <option value="Còn hàng">Còn hàng</option>
+              <option value="Đã bán">Đã bán</option>
+            </select>
+            
+            <select
+              value={activePriceRange}
+              onChange={(e) => setActivePriceRange(e.target.value)}
+              className="px-4 py-2 bg-stone-50 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-navy focus:outline-none focus:border-navy cursor-pointer"
+            >
+              <option value="all">Mọi mức giá</option>
+              <option value="under500">Dưới 500k</option>
+              <option value="500to1000">500k - 1 Triệu</option>
+              <option value="over1000">Trên 1 Triệu</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold hidden md:block">Sắp xếp:</span>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="px-4 py-2 bg-stone-50 border border-stone-200 text-[10px] font-bold uppercase tracking-widest text-navy focus:outline-none focus:border-navy cursor-pointer w-full md:w-auto"
+            >
+              <option value="newest">Mới nhất</option>
+              <option value="price-asc">Giá tăng dần</option>
+              <option value="price-desc">Giá giảm dần</option>
+            </select>
+          </div>
+        </div>
+
         {loading ? (
           /* Skeleton Loading — perceived performance tốt hơn spinner */
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20 gap-x-4 md:gap-x-10">

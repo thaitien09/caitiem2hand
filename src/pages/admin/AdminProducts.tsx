@@ -17,9 +17,13 @@ import {
   TrashIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
-  PhotoIcon
+  PhotoIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import type { Product } from '@/types/product';
+
+const ITEMS_PER_PAGE = 10;
 
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,6 +36,7 @@ const AdminProducts: React.FC = () => {
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [brandList, setBrandList] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   
   const [formData, setFormData] = useState<Partial<Product>>({
     title: '',
@@ -257,6 +262,15 @@ const AdminProducts: React.FC = () => {
     return matchesSearch && matchesBrand && matchesStatus;
   });
 
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, filterBrand, filterStatus]);
+
   return (
     <div className="animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -322,7 +336,7 @@ const AdminProducts: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <tr key={product.id} className="border-b border-stone-100 hover:bg-stone-50 transition-colors">
                   <td className="p-5">
                     <div className="w-16 h-20 bg-stone-100 overflow-hidden shadow-sm border border-stone-200 relative group">
@@ -365,6 +379,46 @@ const AdminProducts: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[10px] text-stone-400 uppercase tracking-widest">
+              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="w-9 h-9 border border-stone-200 flex items-center justify-center text-stone-400 hover:border-navy hover:text-navy transition-all disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
+              >
+                <ChevronLeftIcon className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-9 h-9 border text-[11px] font-bold tracking-widest transition-all duration-300 rounded-sm ${
+                    currentPage === page
+                      ? 'bg-navy text-white border-navy'
+                      : 'border-stone-200 text-stone-400 hover:border-navy hover:text-navy'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="w-9 h-9 border border-stone-200 flex items-center justify-center text-stone-400 hover:border-navy hover:text-navy transition-all disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
+              >
+                <ChevronRightIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Product Modal */}

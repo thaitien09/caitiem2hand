@@ -38,6 +38,8 @@ const AdminDashboard: React.FC = () => {
   const soldProducts = products.filter(p => p.status === 'Đã bán').length;
   const newProducts = products.filter(p => p.status === 'Hàng mới').length;
   const inStockProducts = products.filter(p => p.status === 'Còn hàng').length;
+  // Đang bán = Hàng mới + Còn hàng (tất cả chưa bán)
+  const availableProducts = newProducts + inStockProducts;
 
   const stats = [
     { 
@@ -50,9 +52,9 @@ const AdminDashboard: React.FC = () => {
     },
     { 
       name: 'Đang bán', 
-      value: inStockProducts.toString(), 
+      value: availableProducts.toString(), 
       icon: ArrowTrendingUpIcon, 
-      change: 'Còn trong kho', 
+      change: `${newProducts} mới · ${inStockProducts} cũ`, 
       color: 'text-purple-600',
       changeBg: 'bg-purple-50 text-purple-600'
     },

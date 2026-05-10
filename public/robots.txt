@@ -4,4 +4,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://caitiem2hand.vercel.app/sitemap.xml
+Sitemap: https://caitiem2hand.com/sitemap.xml

@@ -6,17 +6,36 @@ import { useProducts } from '@/context/ProductContext';
 
 export const MOCK_PRODUCTS: import('@/types/product').Product[] = [];
 
+const PRODUCTS_PER_PAGE = 12;
+
 const Home: React.FC = () => {
   const { products, brands, loading } = useProducts();
   const [activeBrand, setActiveBrand] = useState<string>('Tất cả');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isVideoMaximized, setIsVideoMaximized] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredProducts = activeBrand === 'Tất cả'
     ? products
     : products.filter(p => 
         (p.brand?.toLowerCase() || '').includes(activeBrand.toLowerCase())
       );
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
+
+  const handleBrandChange = (brand: string) => {
+    setActiveBrand(brand);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    document.getElementById('san-pham')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     document.title = "Cái Tiệm 2HAND | Shop Đồ Si Vintage & Độc Bản";
@@ -146,7 +165,7 @@ const Home: React.FC = () => {
             {brands.map((brand) => (
               <button
                 key={brand}
-                onClick={() => setActiveBrand(brand)}
+                onClick={() => handleBrandChange(brand)}
                 className={`text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 py-2 border-b-2 cursor-pointer ${activeBrand === brand ? 'border-navy text-navy' : 'border-transparent text-stone-300 hover:text-stone-500'
                   }`}
               >
@@ -174,11 +193,53 @@ const Home: React.FC = () => {
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20 gap-x-4 md:gap-x-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            {/* Stats info */}
+            <div className="mb-8 text-[10px] text-stone-400 uppercase tracking-widest text-right">
+              Hiển thị {(currentPage - 1) * PRODUCTS_PER_PAGE + 1}–{Math.min(currentPage * PRODUCTS_PER_PAGE, filteredProducts.length)} / {filteredProducts.length} sản phẩm
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 md:gap-y-20 gap-x-4 md:gap-x-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {paginatedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-20 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="w-10 h-10 border border-stone-200 flex items-center justify-center text-stone-400 hover:border-navy hover:text-navy transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ‹
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`w-10 h-10 border text-[11px] font-bold tracking-widest transition-all duration-300 ${
+                      currentPage === page
+                        ? 'bg-navy text-white border-navy'
+                        : 'border-stone-200 text-stone-400 hover:border-navy hover:text-navy'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="w-10 h-10 border border-stone-200 flex items-center justify-center text-stone-400 hover:border-navy hover:text-navy transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="py-20 text-center text-stone-300 uppercase tracking-widest text-[10px] animate-in fade-in duration-700">
             Hiện chưa có sản phẩm nào cho {activeBrand}

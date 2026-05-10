@@ -144,15 +144,15 @@ const ProductDetail: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-start">
           {/* Left Side: Image Gallery */}
-          <div className="lg:col-span-6 flex flex-col-reverse md:flex-row gap-3 md:gap-6">
-            {/* Thumbnails — Grid wrap on mobile */}
+          <div className="lg:col-span-7 flex flex-col md:flex-row gap-4 md:gap-6">
+            {/* Thumbnails: Single vertical column on PC */}
             {images.length > 1 && (
-              <div className="flex flex-wrap md:flex-col gap-2 md:gap-3 md:max-h-[500px] md:overflow-y-auto scrollbar-hide md:w-16 lg:w-20 shrink-0">
+              <div className="flex flex-row md:flex-col gap-2 md:gap-3 md:max-h-[600px] md:overflow-y-auto custom-scrollbar md:w-20 lg:w-24 shrink-0 order-2 md:order-1 overflow-x-auto md:overflow-x-hidden snap-x md:snap-none">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleImageChange(idx)}
-                    className={`w-[calc(20%-8px)] sm:w-[calc(16.66%-8px)] md:w-full aspect-[3/4] overflow-hidden transition-all duration-500 shrink-0 border-2 ${currentIndex === idx ? 'border-navy shadow-md scale-105' : 'border-stone-100 opacity-60 hover:opacity-100'}`}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`w-[calc(25%-8px)] md:w-full aspect-[3/4] shrink-0 snap-start overflow-hidden transition-all duration-300 border-2 ${currentIndex === idx ? 'border-navy shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   >
                     <img src={img} alt="Thumb" className="w-full h-full object-cover" />
                   </button>
@@ -161,42 +161,19 @@ const ProductDetail: React.FC = () => {
             )}
 
             {/* Main Image View */}
-            <div className="flex-1 relative group overflow-hidden rounded-lg md:rounded-none">
-              <div
-                className="aspect-[3/4] w-full max-h-[70vh] md:max-h-[550px] overflow-hidden relative bg-stone-50 cursor-zoom-in border border-stone-100"
-                onClick={() => setIsZoomed(true)}
-              >
-                <img src={images[prevIndex]} alt="Prev" className={`absolute inset-0 w-full h-full object-cover z-0 ${isSold ? 'grayscale opacity-50' : ''}`} />
+            <div className="flex-1 order-1 md:order-2">
+              <div className="relative aspect-[3/4] bg-stone-50 overflow-hidden border border-stone-100">
                 <img
-                  key={currentIndex}
                   src={images[currentIndex]}
                   alt={product.title}
-                  className={`absolute inset-0 w-full h-full object-cover z-10 transition-all duration-1000 ease-out ${isAnimating ? 'opacity-0 blur-lg scale-105' : 'opacity-100 blur-0 scale-100'
-                    } ${isSold ? 'grayscale opacity-50' : 'hover:scale-105 transition-transform duration-700'}`}
+                  className="w-full h-full object-cover animate-in fade-in duration-500"
                 />
-
-                {images.length > 1 && (
-                  <div className="absolute bottom-4 right-4 z-20 bg-navy/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full tracking-widest shadow-lg md:hidden">
-                    {currentIndex + 1} / {images.length}
-                  </div>
-                )}
-
-                {!isSold && images.length > 1 && (
-                  <div className="absolute inset-0 z-20 flex justify-between items-center px-2 md:px-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-none md:pointer-events-auto">
-                    <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="pointer-events-auto p-2 rounded-full bg-white/80 md:bg-transparent shadow-sm md:shadow-none text-navy/70 hover:text-navy transition-colors">
-                      <ChevronLeftIcon className="w-7 h-7 md:w-9 md:h-9" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="pointer-events-auto p-2 rounded-full bg-white/80 md:bg-transparent shadow-sm md:shadow-none text-navy/70 hover:text-navy transition-colors">
-                      <ChevronRightIcon className="w-7 h-7 md:w-9 md:h-9" />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Right Side: Product Info */}
-          <div className="lg:col-span-6 flex flex-col pt-2">
+          {/* Right Side: Sticky Product Info */}
+          <div className="lg:col-span-5 flex flex-col pt-2 lg:sticky lg:top-24">
             <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold mb-2 text-stone-500">
               <span className="text-navy">{product?.brand || 'Premium Brand'}</span>
               <span className="w-px h-2 bg-stone-300" />

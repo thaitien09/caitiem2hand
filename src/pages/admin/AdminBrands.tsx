@@ -129,26 +129,26 @@ const AdminBrands: React.FC = () => {
           <div className="w-10 h-10 border-2 border-navy border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {brands.map((brand) => (
-            <div key={brand.id} className="bg-white p-10 shadow-sm border border-stone-100 rounded-sm hover:border-navy transition-all group relative">
+            <div key={brand.id} className="bg-white p-6 md:p-10 shadow-sm border border-stone-100 rounded-sm hover:border-navy transition-all group relative">
               <div className="flex flex-col items-center text-center">
                 <h3 className="text-xl font-serif text-navy tracking-wide group-hover:scale-105 transition-transform duration-500">{brand.name}</h3>
                 <div className="w-8 h-[1px] bg-stone-200 mt-4 group-hover:w-16 group-hover:bg-navy transition-all duration-500" />
               </div>
               
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 flex gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => openEditModal(brand)}
-                  className="p-1.5 text-stone-300 hover:text-navy transition-colors"
+                  className="p-2 text-stone-400 hover:text-navy transition-colors"
                 >
-                  <PencilSquareIcon className="w-4 h-4" />
+                  <PencilSquareIcon className="w-5 h-5 lg:w-4 lg:h-4" />
                 </button>
                 <button 
                   onClick={() => handleDelete(brand.id)}
-                  className="p-1.5 text-stone-300 hover:text-red-500 transition-colors"
+                  className="p-2 text-stone-400 hover:text-red-600 transition-colors"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-5 h-5 lg:w-4 lg:h-4" />
                 </button>
               </div>
             </div>
